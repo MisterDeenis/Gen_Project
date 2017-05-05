@@ -261,15 +261,15 @@ public class TransformationPoints {
 			Point3D delta = vecteurPointFinal.subtract(vecteurDirecteur.getX(), vecteurDirecteur.getY(),
 					vecteurDirecteur.getZ());
 
-			updateArrayWithFactors(points3DUpdater.get(groupADD), groupADD, i);
-
 			if (!groupFactors.containsKey(groupADD)) {
 				Map<String, Transform> map = new HashMap<String, Transform>();
-				map.put(ancestor, new Translate(delta.getX(), delta.getY(), delta.getZ()));
+				map.put(ancestor, new Translate(delta.getY(), delta.getZ(), delta.getX()));
 				groupFactors.put(groupADD, map);
 			} else {
-				groupFactors.get(groupADD).put(ancestor, new Translate(delta.getX(), delta.getY(), delta.getZ()));
+				groupFactors.get(groupADD).put(ancestor, new Translate(delta.getY(), delta.getZ(), delta.getX()));
 			}
+			
+			updateArrayWithFactors(points3DUpdater.get(groupADD), groupADD, i);
 			updatePointCommun(groupADD, ancestor, findPointsGroupREM(groupREM));
 
 		}
@@ -309,10 +309,8 @@ public class TransformationPoints {
 		ObservableFloatArray po = points3DIni.get(group);
 		Point3D trans = new Point3D(po.get(0 + (3 * index)), po.get(1 + (3 * index)), po.get(2 + (3 * index)));
 		for (Transform factors : groupFactors.get(group).values()) {
-			System.out.println("JE passe");
 			trans = factors.transform(trans);
 		}
-		System.out.println("JE sors");
 		pointsUpdater.set(2 + (3 * index), (float) (trans.getZ()));
 		pointsUpdater.set(0 + (3 * index), (float) (trans.getX()));
 		pointsUpdater.set(1 + (3 * index), (float) (trans.getY()));
