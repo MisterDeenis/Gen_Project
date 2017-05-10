@@ -133,7 +133,6 @@ public class Face {
 	public void setEyeDistance(float distance) {
 		pointsVisage.applyRotation(LEye, "eyeDistance", new Point3D(0, 5, 0), 'x', -getLEye().getRotation(),
 				new Point3D(-distance, 0, 0));
-		;
 		pointsVisage.applyRotation(REye, "eyeDistance", new Point3D(0, 5, 0), 'x', getREye().getRotation(),
 				new Point3D(distance, 0, 0));
 	}

@@ -65,7 +65,8 @@ public class TransformationPoints {
 	}
 
 	/**
-	 * Permet d'appliquer une translation sur une des composantes du visage
+	 * Permet d'appliquer une translation sur une des composantes du visage.
+	 * Update le point d'un groupe selon un facteur dans chaque dimension.
 	 * 
 	 * @param part
 	 *            la partie du visage
@@ -74,14 +75,43 @@ public class TransformationPoints {
 	 */
 	public void applyTranslation(BodyPart part, String ancestor, Point3D transformation) {
 		for (String group : part.getSubParts()) {
-			updatePointsTranslation(group, ancestor, part.getIgnore(), transformation);
+			ajoutGroupFactors(group, ancestor,
+					new Translate(transformation.getY(), transformation.getZ(), transformation.getX()));
+			updatePoints(group, part.getIgnore(), ancestor);
 		}
 	}
 
+	/**
+	 * Permet de faire tourner une partie du visage
+	 * 
+	 * @param pointCentre
+	 *            Le centre de rotation
+	 * @param axe
+	 *            L'axe autour duquel on tourne
+	 * @param degres
+	 *            Le nombre de degrés qu'on veut tourner
+	 * @return Un objet Rotate à appliquer sur les composantes voulues
+	 */
 	public void applyRotation(BodyPart part, String ancestor, Point3D pointCentre, char axe, double degres,
 			Point3D translation) {
 		for (String group : part.getSubParts()) {
-			updatePointsRotation(group, ancestor, part.getIgnore(), pointCentre, axe, degres, translation);
+			Rotate objet = null;
+			switch (axe) {
+			case 'x':
+				objet = new Rotate(degres, pointCentre.getX(), pointCentre.getY(), pointCentre.getZ(), Rotate.X_AXIS);
+				break;
+			case 'y':
+				objet = new Rotate(degres, pointCentre.getX(), pointCentre.getY(), pointCentre.getZ(), Rotate.Y_AXIS);
+				break;
+			case 'z':
+				objet = new Rotate(degres, pointCentre.getX(), pointCentre.getY(), pointCentre.getZ(), Rotate.Z_AXIS);
+				break;
+			}
+
+			ajoutGroupFactors(group, ancestor, objet);
+			ajoutGroupFactors(group, ancestor + "Translate",
+					new Translate(translation.getY(), translation.getZ(), translation.getX()));
+			updatePoints(group, part.getIgnore(), ancestor);
 		}
 	}
 
@@ -97,13 +127,32 @@ public class TransformationPoints {
 	 */
 	public void applyGrossissement(BodyPart part, String ancestor, double factor) {
 		for (String group : part.getSubParts()) {
-			updatePointGrossissement(group, ancestor, part.getIgnore(), factor);
+			ObservableFloatArray points = points3DIni.get(group);
+			Point3D center = VecteurUtilitaires.findPointMilieu(points);
+
+			for (int i = 0; i < (points.size() / 3); i++) {
+
+				Point3D vecteurDirecteur = VecteurUtilitaires.findVecteur(center,
+						new Point3D(points.get((3 * i) + 2), points.get((3 * i)), points.get((3 * i) + 1)));
+
+				Point3D vecteurPointFinal = vecteurDirecteur.multiply(factor);
+
+				Point3D delta = vecteurPointFinal.subtract(vecteurDirecteur.getX(), vecteurDirecteur.getY(),
+						vecteurDirecteur.getZ());
+
+				ajoutGroupFactors(group, ancestor, new Translate(delta.getY(), delta.getZ(), delta.getX()));
+				updateArrayWithFactors(points3DUpdater.get(group), group, i);
+				updatePointCommun(group, ancestor, findPointsGroupREM(part.getIgnore()));
+			}
 		}
 	}
 
 	public void applyStretch(BodyPart part, String ancestor, Point3D pointCentre, Point3D scale) {
 		for (String group : part.getSubParts()) {
-			updatePointStretch(group, ancestor, part.getIgnore(), pointCentre, scale);
+			Scale objet = new Scale(scale.getX(), scale.getY(), scale.getZ(), pointCentre.getX(), pointCentre.getY(),
+					pointCentre.getZ());
+			ajoutGroupFactors(group, ancestor, objet);
+			updatePoints(group, part.getIgnore(), ancestor);
 		}
 	}
 
@@ -156,25 +205,17 @@ public class TransformationPoints {
 
 	}
 
-	/**
-	 * 
-	 * Update le point d'un groupe selon un facteur dans chaque dimension.
-	 * 
-	 * @param groupADD
-	 *            le groupe à modifier
-	 * @param factors
-	 *            - un point 3D qui contient le facteur modificateur dans chaque
-	 *            dimension
-	 */
-	private void updatePointsTranslation(String groupADD, String ancestor, List<String> groupREM, Point3D factors) {
+	private void ajoutGroupFactors(String groupADD, String ancestors, Transform trans) {
 		if (!groupFactors.containsKey(groupADD)) {
 			Map<String, Transform> map = new HashMap<String, Transform>();
-			map.put(ancestor, new Translate(factors.getY(), factors.getZ(), factors.getX()));
+			map.put(ancestors, trans);
 			groupFactors.put(groupADD, map);
 		} else {
-			groupFactors.get(groupADD).put(ancestor, new Translate(factors.getY(), factors.getZ(), factors.getX()));
+			groupFactors.get(groupADD).put(ancestors, trans);
 		}
+	}
 
+	private void updatePoints(String groupADD, List<String> groupREM, String ancestor) {
 		ObservableFloatArray points = points3DUpdater.get(groupADD);
 		List<ObservableFloatArray> pointsGroupREM = findPointsGroupREM(groupREM);
 
@@ -189,118 +230,6 @@ public class TransformationPoints {
 				}
 			} else {
 				updateArrayWithFactors(points, groupADD, i);
-			}
-		}
-	}
-
-	/**
-	 * Permet de faire tourner une partie du visage
-	 * 
-	 * @param pointCentre
-	 *            Le centre de rotation
-	 * @param axe
-	 *            L'axe autour duquel on tourne
-	 * @param degres
-	 *            Le nombre de degrés qu'on veut tourner
-	 * @return Un objet Rotate à appliquer sur les composantes voulues
-	 */
-	// TODO les points translation vs rotation de l'oreille sont pas alignés
-	private void updatePointsRotation(String group, String ancestor, List<String> groupREM, Point3D pointCentre,
-			char axe, double degres, Point3D translation) {
-		Rotate objet = null;
-		switch (axe) {
-		case 'x':
-			objet = new Rotate(degres, pointCentre.getX(), pointCentre.getY(), pointCentre.getZ(), Rotate.X_AXIS);
-			break;
-		case 'y':
-			objet = new Rotate(degres, pointCentre.getX(), pointCentre.getY(), pointCentre.getZ(), Rotate.Y_AXIS);
-			break;
-		case 'z':
-			objet = new Rotate(degres, pointCentre.getX(), pointCentre.getY(), pointCentre.getZ(), Rotate.Z_AXIS);
-			break;
-		}
-		if (!groupFactors.containsKey(group)) {
-			Map<String, Transform> map = new HashMap<String, Transform>();
-			map.put(ancestor, objet);
-			map.put(ancestor + "Translate", new Translate(translation.getY(), translation.getZ(), translation.getX()));
-			groupFactors.put(group, map);
-		} else {
-			groupFactors.get(group).put(ancestor, objet);
-			groupFactors.get(group).put(ancestor + "Translate",
-					new Translate(translation.getY(), translation.getZ(), translation.getX()));
-		}
-		ObservableFloatArray points = points3DUpdater.get(group);
-		List<ObservableFloatArray> pointsGroupREM = findPointsGroupREM(groupREM);
-
-		Set<Integer> dodge = pointsDodge.get(group);
-
-		updatePointCommun(group, ancestor, pointsGroupREM);
-
-		for (int i = 0; i < points.size() / 3; i++) {
-			if ((dodge != null) && (!dodge.isEmpty())) {
-				if (!dodge.contains(i)) {
-					updateArrayWithFactors(points, group, i);
-				}
-			} else {
-				updateArrayWithFactors(points, group, i);
-			}
-		}
-	}
-
-	private void updatePointGrossissement(String groupADD, String ancestor, List<String> groupREM, double factor) {
-		ObservableFloatArray points = points3DIni.get(groupADD);
-		Point3D center = VecteurUtilitaires.findPointMilieu(points);
-
-		for (int i = 0; i < (points.size() / 3); i++) {
-
-			Point3D vecteurDirecteur = VecteurUtilitaires.findVecteur(center,
-					new Point3D(points.get((3 * i) + 2), points.get((3 * i)), points.get((3 * i) + 1)));
-
-			Point3D vecteurPointFinal = vecteurDirecteur.multiply(factor);
-
-			Point3D delta = vecteurPointFinal.subtract(vecteurDirecteur.getX(), vecteurDirecteur.getY(),
-					vecteurDirecteur.getZ());
-
-			if (!groupFactors.containsKey(groupADD)) {
-				Map<String, Transform> map = new HashMap<String, Transform>();
-				map.put(ancestor, new Translate(delta.getY(), delta.getZ(), delta.getX()));
-				groupFactors.put(groupADD, map);
-			} else {
-				groupFactors.get(groupADD).put(ancestor, new Translate(delta.getY(), delta.getZ(), delta.getX()));
-			}
-			
-			updateArrayWithFactors(points3DUpdater.get(groupADD), groupADD, i);
-			updatePointCommun(groupADD, ancestor, findPointsGroupREM(groupREM));
-
-		}
-	}
-
-	// TODO problème de stretch (deuxième bouche apparait)
-	private void updatePointStretch(String group, String ancestor, List<String> groupREM, Point3D pointCentre,
-			Point3D scale) {
-		Scale objet = new Scale(scale.getX(), scale.getY(), scale.getZ(), pointCentre.getX(), pointCentre.getY(),
-				pointCentre.getZ());
-		if (!groupFactors.containsKey(group)) {
-			Map<String, Transform> map = new HashMap<String, Transform>();
-			map.put(ancestor, objet);
-			groupFactors.put(group, map);
-		} else {
-			groupFactors.get(group).put(ancestor, objet);
-		}
-		ObservableFloatArray points = points3DUpdater.get(group);
-		List<ObservableFloatArray> pointsGroupREM = findPointsGroupREM(groupREM);
-
-		Set<Integer> dodge = pointsDodge.get(group);
-
-		updatePointCommun(group, ancestor, pointsGroupREM);
-
-		for (int i = 0; i < points.size() / 3; i++) {
-			if ((dodge != null) && (!dodge.isEmpty())) {
-				if (!dodge.contains(i)) {
-					updateArrayWithFactors(points, group, i);
-				}
-			} else {
-				updateArrayWithFactors(points, group, i);
 			}
 		}
 	}
