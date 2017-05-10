@@ -2,6 +2,9 @@ package modele.phenotype;
 
 import java.util.ArrayList;
 
+/**
+ * Classe représentant une oreille
+ */
 public class Ear extends BodyPart {
 
 	private double rotation;

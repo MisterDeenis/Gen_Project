@@ -8,83 +8,55 @@ import modele.phenotype.data.EyeColor;
 import modele.phenotype.data.HairColor;
 import modele.phenotype.data.SkinColor;
 
+/**
+ * Classe représentant une face
+ */
 public class Face {
 
+	/**
+	 * Stocke les différentes parts de la Face. Utilisée dans findBodyPart()
+	 */
 	private List<BodyPart> parts = new ArrayList<BodyPart>();
-	private Ear LEar = null;
-	private Ear REar = null;
-	private Eye LEye = null;
-	private Eye REye = null;
+	private Ear earL = null;
+	private Ear earR = null;
+	private Eye eyeL = null;
+	private Eye eyeR = null;
 	private Hair hair = null;
 	private Mouth mouth = null;
 	private BodyPart nose = null;
 	private BodyPart front = null;
-	private BodyPart cheveux = null;
-	private BodyPart LJoue = null;
-	private BodyPart RJoue = null;
+	private BodyPart joueL = null;
+	private BodyPart joueR = null;
 	private BodyPart menton = null;
 	private BodyPart arche = null;
-	private BodyPart LBosse = null;
-	private BodyPart RBosse = null;
+	private BodyPart bosseL = null;
+	private BodyPart bosseR = null;
 	private BodyPart pointe = null;
-	private Sourcils LSourcils = null;
-	private Sourcils RSourcils = null;
+	private BodyPart cou = null;
+	private Sourcils sourcilsL = null;
+	private Sourcils sourcilsR = null;
 	private SkinColor skinColor = null;
 	private TransformationPoints pointsVisage = null;
 
 	public Face(EyeColor eyeColor, SkinColor skinColor, HairColor hairColor) {
-		ArrayList<String> groupREM = new ArrayList<String>();
-		groupREM.add("Cheveux");
-		LEar = new Ear(groupREM, "Oreille gauche");
-		REar = new Ear(groupREM, "Oreille droite");
-		front = new BodyPart(groupREM, "Front");
-		LEye = new Eye(eyeColor, groupREM, "Blanc oeil gauche", "Noir oeil gauche", "Couleur oeil gauche");
-		REye = new Eye(eyeColor, groupREM, "Blanc oeil droit", "Noir oeil droit", "Couleur oeil droit");
-		groupREM = new ArrayList<String>();
-		groupREM.add("Cheveux");
-		groupREM.add("Oeil droit");
-		groupREM.add("Oeil gauche");
-		LSourcils = new Sourcils(hairColor, groupREM, "Sourcil gauche");
-		RSourcils = new Sourcils(hairColor, groupREM, "Sourcil droit");
-		groupREM = new ArrayList<String>();
-		groupREM.add("Nez");
-		mouth = new Mouth(groupREM, "Bouche");
-		groupREM = new ArrayList<String>();
-		hair = new Hair(hairColor, groupREM, "Cheveux");
-		mouth = new Mouth(groupREM, "Bouche");
-		nose = new BodyPart(groupREM, "Bord narine", "Narine", "Nez");
-		menton = new BodyPart(groupREM, "Menton");
-		cheveux = new BodyPart(groupREM, "Cheveux");
-		menton = new BodyPart(groupREM, "Menton");
 		instantiateOreilles();
 		instantiateNez();
 		instantiateJoue();
+		instantiateUpperFace(eyeColor);
+		instantiateSourcils(hairColor);
+		instantiateRestBody(hairColor);
 		this.skinColor = skinColor;
 		pointsVisage = new TransformationPoints();
 		addToArray();
 	}
 
-	private void addToArray() {
-		parts.add(LEar);
-		parts.add(REar);
-		parts.add(LEye);
-		parts.add(REye);
-		parts.add(hair);
-		parts.add(mouth);
-		parts.add(nose);
-		parts.add(front);
-		parts.add(cheveux);
-		parts.add(LJoue);
-		parts.add(RJoue);
-		parts.add(menton);
-		parts.add(arche);
-		parts.add(LBosse);
-		parts.add(RBosse);
-		parts.add(pointe);
-		parts.add(LSourcils);
-		parts.add(RSourcils);
-	}
-
+	/**
+	 * Trouve s'il existe une BodyPart correspondante à une string d'entrée
+	 * 
+	 * @param part
+	 *            - le string à rechercher
+	 * @return le BodyPart correspondant à la string
+	 */
 	public BodyPart findBodyPart(String part) {
 		BodyPart out = null;
 		for (BodyPart e : parts) {
@@ -98,48 +70,21 @@ public class Face {
 
 	}
 
-	public Ear getLEar() {
-		return LEar;
-	}
-
-	public void setLEar(Ear ear) {
-		this.LEar = ear;
-	}
-
-	public Ear getREar() {
-		return REar;
-	}
-
-	public void setREar(Ear ear) {
-		this.REar = ear;
-	}
-
-	public Eye getLEye() {
-		return LEye;
-	}
-
-	public void setLEye(Eye eye) {
-		this.LEye = eye;
-	}
-
-	public Eye getREye() {
-		return REye;
-	}
-
-	public void setREye(Eye eye) {
-		this.REye = eye;
-	}
-
 	public void setEyeDistance(float distance) {
-		pointsVisage.applyRotation(LEye, "eyeDistance", new Point3D(0, 5, 0), 'x', -getLEye().getRotation(),
+		pointsVisage.applyRotation(eyeL, "eyeDistance", new Point3D(0, 5, 0), 'x', -eyeL.getRotation(),
 				new Point3D(-distance, 0, 0));
-		pointsVisage.applyRotation(REye, "eyeDistance", new Point3D(0, 5, 0), 'x', getREye().getRotation(),
+		pointsVisage.applyRotation(eyeR, "eyeDistance", new Point3D(0, 5, 0), 'x', eyeR.getRotation(),
 				new Point3D(distance, 0, 0));
 	}
 
-	public void setPositionOreilles(float hauteur, float profondeur) {
-		pointsVisage.applyTranslation(LEar, "posOreille", new Point3D(0, hauteur, -profondeur));
-		pointsVisage.applyTranslation(REar, "posOreille", new Point3D(0, hauteur, -profondeur));
+	public void setProfondeurOreilles(float profondeur) {
+		pointsVisage.applyTranslation(earL, "profOreille", new Point3D(0, 0, -profondeur));
+		pointsVisage.applyTranslation(earR, "profOreille", new Point3D(0, 0, -profondeur));
+	}
+
+	public void setHauteurOreilles(float hauteur) {
+		pointsVisage.applyTranslation(earL, "hauteurOreille", new Point3D(0, hauteur, 0));
+		pointsVisage.applyTranslation(earR, "hauteurOreille", new Point3D(0, hauteur, 0));
 	}
 
 	public void setPositionBouche(float hauteur) {
@@ -152,12 +97,12 @@ public class Face {
 	}
 
 	public void setRotationOreille(double rotation) {
-		LEar.setRotation(rotation);
-		REar.setRotation(rotation);
-		pointsVisage.applyRotation(LEar, "rotateOreille", new Point3D(0, (-2.5 - LEar.getProfondeur()), -9.59), 'x',
-				-LEar.getRotation(), new Point3D(0, 0, 0));
-		pointsVisage.applyRotation(REar, "rotateOreille", new Point3D(0, (-2.5 - REar.getProfondeur()), 9.59), 'x',
-				REar.getRotation(), new Point3D(0, 0, 0));
+		earL.setRotation(rotation);
+		earR.setRotation(rotation);
+		pointsVisage.applyRotation(earL, "rotateOreille", new Point3D(0, (-2.5 - earL.getProfondeur()), -9.59), 'x',
+				-earL.getRotation(), new Point3D(0, 0, 0));
+		pointsVisage.applyRotation(earR, "rotateOreille", new Point3D(0, (-2.5 - earR.getProfondeur()), 9.59), 'x',
+				earR.getRotation(), new Point3D(0, 0, 0));
 	}
 
 	public void setPositionNez(float hauteur) {
@@ -165,13 +110,13 @@ public class Face {
 	}
 
 	public void setPositionSourcils(float ecart) {
-		pointsVisage.applyTranslation(LSourcils, "posSourcils", new Point3D(-ecart, 0, -ecart / 2));
-		pointsVisage.applyTranslation(RSourcils, "posSourcils", new Point3D(ecart, 0, -ecart / 2));
+		pointsVisage.applyTranslation(sourcilsL, "posSourcils", new Point3D(-ecart, 0, -ecart / 2));
+		pointsVisage.applyTranslation(sourcilsR, "posSourcils", new Point3D(ecart, 0, -ecart / 2));
 	}
 
 	public void setGrosseurJoues(float ecart) {
-		pointsVisage.applyTranslation(LJoue, "grosseurJoue", new Point3D(-ecart, 0, ecart / 3));
-		pointsVisage.applyTranslation(RJoue, "grosseurJoue", new Point3D(ecart, 0, ecart / 3));
+		pointsVisage.applyTranslation(joueL, "grosseurJoue", new Point3D(-ecart, 0, ecart / 3));
+		pointsVisage.applyTranslation(joueR, "grosseurJoue", new Point3D(ecart, 0, ecart / 3));
 	}
 
 	public void setPositionArche(float ecart) {
@@ -179,8 +124,8 @@ public class Face {
 	}
 
 	public void setEcartNarine(float ecart) {
-		pointsVisage.applyTranslation(LBosse, "ecartNarine", new Point3D(-ecart, 0, 0));
-		pointsVisage.applyTranslation(RBosse, "ecartNarine", new Point3D(ecart, 0, 0));
+		pointsVisage.applyTranslation(bosseL, "ecartNarine", new Point3D(-ecart, 0, 0));
+		pointsVisage.applyTranslation(bosseR, "ecartNarine", new Point3D(ecart, 0, 0));
 	}
 
 	public void setLongueurPointe(float ecart) {
@@ -189,18 +134,153 @@ public class Face {
 
 	public void setPositionFront(float ecart) {
 		pointsVisage.applyTranslation(front, "front", new Point3D(0, 0, ecart));
-		pointsVisage.applyTranslation(LSourcils, "front", new Point3D(0, 0, ecart / 2));
-		pointsVisage.applyTranslation(RSourcils, "front", new Point3D(0, 0, ecart / 2));
-		pointsVisage.applyTranslation(LEye, "front", new Point3D(0, 0, ecart / 2));
-		pointsVisage.applyTranslation(REye, "front", new Point3D(0, 0, ecart / 2));
-		pointsVisage.applyTranslation(LJoue, "front", new Point3D(0, 0, ecart / 3));
-		pointsVisage.applyTranslation(RJoue, "front", new Point3D(0, 0, ecart / 3));
+		pointsVisage.applyTranslation(sourcilsL, "front", new Point3D(0, 0, ecart / 2));
+		pointsVisage.applyTranslation(sourcilsR, "front", new Point3D(0, 0, ecart / 2));
+		pointsVisage.applyTranslation(eyeL, "front", new Point3D(0, 0, ecart / 2));
+		pointsVisage.applyTranslation(eyeR, "front", new Point3D(0, 0, ecart / 2));
+		pointsVisage.applyTranslation(joueL, "front", new Point3D(0, 0, ecart / 3));
+		pointsVisage.applyTranslation(joueR, "front", new Point3D(0, 0, ecart / 3));
 	}
 
 	public void setGrosseurCou(float grosseur) {
-		ArrayList<String> groupREM = new ArrayList<>();
-		groupREM.add("Cheveux");
-		pointsVisage.applyGrossissement(new BodyPart(groupREM, "Cou"), "cou", grosseur);
+		pointsVisage.applyGrossissement(cou, "cou", grosseur);
+	}
+
+	public void setLongueurFace(float distance) {
+		pointsVisage.applyTranslation(front, "longueurFace", new Point3D(0, distance, 0));
+		pointsVisage.applyTranslation(hair, "longueurFace", new Point3D(0, distance, 0));
+		pointsVisage.applyTranslation(menton, "longueurFace", new Point3D(0, -distance, 0));
+
+	}
+
+	public void setProeminenceSourcils(float distance) {
+		pointsVisage.applyTranslation(sourcilsL, "proeminSourcils", new Point3D(0, 0, distance));
+		pointsVisage.applyTranslation(sourcilsR, "proeminSourcils", new Point3D(0, 0, distance));
+	}
+
+	public void setProeminenceMenton(float distance) {
+		pointsVisage.applyTranslation(menton, "proeminMenton", new Point3D(0, -(distance * 0.25), distance));
+		pointsVisage.applyTranslation(mouth, "proeminMenton", new Point3D(0, -(distance * 0.25), distance));
+	}
+
+	public Ear getEarL() {
+		return earL;
+	}
+
+	public void setEarL(Ear earL) {
+		this.earL = earL;
+	}
+
+	public Ear getEarR() {
+		return earR;
+	}
+
+	public void setEarR(Ear earR) {
+		this.earR = earR;
+	}
+
+	public Eye getEyeL() {
+		return eyeL;
+	}
+
+	public void setEyeL(Eye eyeL) {
+		this.eyeL = eyeL;
+	}
+
+	public Eye getEyeR() {
+		return eyeR;
+	}
+
+	public void setEyeR(Eye eyeR) {
+		this.eyeR = eyeR;
+	}
+
+	public BodyPart getFront() {
+		return front;
+	}
+
+	public void setFront(BodyPart front) {
+		this.front = front;
+	}
+
+	public BodyPart getJoueL() {
+		return joueL;
+	}
+
+	public void setJoueL(BodyPart joueL) {
+		this.joueL = joueL;
+	}
+
+	public BodyPart getJoueR() {
+		return joueR;
+	}
+
+	public void setJoueR(BodyPart joueR) {
+		this.joueR = joueR;
+	}
+
+	public BodyPart getMenton() {
+		return menton;
+	}
+
+	public void setMenton(BodyPart menton) {
+		this.menton = menton;
+	}
+
+	public BodyPart getArche() {
+		return arche;
+	}
+
+	public void setArche(BodyPart arche) {
+		this.arche = arche;
+	}
+
+	public BodyPart getBosseL() {
+		return bosseL;
+	}
+
+	public void setBosseL(BodyPart bosseL) {
+		this.bosseL = bosseL;
+	}
+
+	public BodyPart getBosseR() {
+		return bosseR;
+	}
+
+	public void setBosseR(BodyPart bosseR) {
+		this.bosseR = bosseR;
+	}
+
+	public BodyPart getPointe() {
+		return pointe;
+	}
+
+	public void setPointe(BodyPart pointe) {
+		this.pointe = pointe;
+	}
+
+	public BodyPart getCou() {
+		return cou;
+	}
+
+	public void setCou(BodyPart cou) {
+		this.cou = cou;
+	}
+
+	public Sourcils getSourcilsL() {
+		return sourcilsL;
+	}
+
+	public void setSourcilsL(Sourcils sourcilsL) {
+		this.sourcilsL = sourcilsL;
+	}
+
+	public Sourcils getSourcilsR() {
+		return sourcilsR;
+	}
+
+	public void setSourcilsR(Sourcils sourcilsR) {
+		this.sourcilsR = sourcilsR;
 	}
 
 	public Hair getHair() {
@@ -227,20 +307,8 @@ public class Face {
 		this.nose = nose;
 	}
 
-	public Sourcils getLSourcils() {
-		return LSourcils;
-	}
-
-	public void setLSourcils(Sourcils sourcils) {
-		this.LSourcils = sourcils;
-	}
-
-	public Sourcils getRSourcils() {
-		return RSourcils;
-	}
-
-	public void setRSourcils(Sourcils sourcils) {
-		this.RSourcils = sourcils;
+	public void setPointsVisage(TransformationPoints pointsVisage) {
+		this.pointsVisage = pointsVisage;
 	}
 
 	public SkinColor getSkinColor() {
@@ -251,40 +319,22 @@ public class Face {
 		this.skinColor = skinColor;
 	}
 
-	public void setLongueurFace(float distance) {
-		pointsVisage.applyTranslation(front, "longueurFace", new Point3D(0, distance, 0));
-		pointsVisage.applyTranslation(cheveux, "longueurFace", new Point3D(0, distance, 0));
-		pointsVisage.applyTranslation(menton, "longueurFace", new Point3D(0, -distance, 0));
-
-	}
-
-	public void setProeminenceSourcils(float distance) {
-		pointsVisage.applyTranslation(LSourcils, "proeminSourcils", new Point3D(0, 0, distance));
-		pointsVisage.applyTranslation(RSourcils, "proeminSourcils", new Point3D(0, 0, distance));
-	}
-
-	public void setProeminenceMenton(float distance) {
-		pointsVisage.applyTranslation(menton, "proeminMenton", new Point3D(0, -(distance * 0.25), distance));
-		pointsVisage.applyTranslation(mouth, "proeminMenton", new Point3D(0, -(distance * 0.25), distance));
-	}
-
 	public TransformationPoints getPointsVisage() {
 		return pointsVisage;
 	}
 
 	private void instantiateOreilles() {
-		LEar = new Ear("Oreille gauche");
-		REar = new Ear("Oreille droite");
+		earL = new Ear("Oreille gauche");
+		earR = new Ear("Oreille droite");
 	}
 
 	private void instantiateNez() {
 		ArrayList<String> groupREM = new ArrayList<String>();
-		// groupREM.add("Bouche");
 		arche = new BodyPart(groupREM, "Arche");
-		LBosse = new BodyPart(groupREM, "Bosse gauche");
-		RBosse = new BodyPart(groupREM, "Bosse droite");
+		bosseL = new BodyPart(groupREM, "Bosse gauche");
+		bosseR = new BodyPart(groupREM, "Bosse droite");
 		pointe = new BodyPart(groupREM, "Pointe");
-		nose = new BodyPart(groupREM, arche, LBosse, RBosse, pointe);
+		nose = new BodyPart(groupREM, arche, bosseL, bosseR, pointe);
 		nose.getSubParts().add("Nez");
 		nose.getSubParts().add("Narine");
 		nose.getSubParts().add("Bord narine");
@@ -297,8 +347,59 @@ public class Face {
 		groupREM.add("Cheveux");
 		groupREM.add("Nez");
 		groupREM.add("Bouche");
-		LJoue = new BodyPart(groupREM, "Joue gauche");
-		RJoue = new BodyPart(groupREM, "Joue droite");
+		joueL = new BodyPart(groupREM, "Joue gauche");
+		joueR = new BodyPart(groupREM, "Joue droite");
+	}
+
+	private void instantiateUpperFace(EyeColor eyeColor) {
+		ArrayList<String> groupREM = new ArrayList<String>();
+		groupREM.add("Cheveux");
+		earL = new Ear(groupREM, "Oreille gauche");
+		earR = new Ear(groupREM, "Oreille droite");
+		front = new BodyPart(groupREM, "Front");
+		eyeL = new Eye(eyeColor, groupREM, "Blanc oeil gauche", "Noir oeil gauche", "Couleur oeil gauche");
+		eyeR = new Eye(eyeColor, groupREM, "Blanc oeil droit", "Noir oeil droit", "Couleur oeil droit");
+		cou = new BodyPart(groupREM, "Cou");
+	}
+
+	private void instantiateSourcils(HairColor hairColor) {
+		ArrayList<String> groupREM = new ArrayList<String>();
+		groupREM.add("Cheveux");
+		groupREM.add("Oeil droit");
+		groupREM.add("Oeil gauche");
+		sourcilsL = new Sourcils(hairColor, groupREM, "Sourcil gauche");
+		sourcilsR = new Sourcils(hairColor, groupREM, "Sourcil droit");
+	}
+
+	private void instantiateRestBody(HairColor hairColor) {
+		ArrayList<String> groupREM = new ArrayList<String>();
+		hair = new Hair(hairColor, groupREM, "Cheveux");
+		mouth = new Mouth(groupREM, "Bouche");
+		menton = new BodyPart(groupREM, "Menton");
+	}
+
+	/**
+	 * Pour permettre la recherche avec findBodyPart()
+	 */
+	private void addToArray() {
+		parts.add(earL);
+		parts.add(earR);
+		parts.add(eyeL);
+		parts.add(eyeR);
+		parts.add(hair);
+		parts.add(mouth);
+		parts.add(nose);
+		parts.add(front);
+		parts.add(joueL);
+		parts.add(joueR);
+		parts.add(menton);
+		parts.add(arche);
+		parts.add(bosseL);
+		parts.add(bosseR);
+		parts.add(pointe);
+		parts.add(sourcilsL);
+		parts.add(sourcilsR);
+		parts.add(cou);
 	}
 
 }

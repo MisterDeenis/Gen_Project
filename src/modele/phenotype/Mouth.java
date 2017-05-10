@@ -2,6 +2,9 @@ package modele.phenotype;
 
 import java.util.ArrayList;
 
+/**
+ * Classe représentant une bouche
+ */
 public class Mouth extends BodyPart {
 
 	private double scale;

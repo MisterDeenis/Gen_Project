@@ -5,6 +5,10 @@ import java.util.TreeSet;
 
 import utils.Mappable;
 
+/**
+ * Classe représentant les caractères de remplacement pour les différentes
+ * allèles quand il y a un conflit entre deux allèles possibles
+ */
 public enum Wildcard implements Mappable<SortedSet<Allele>, Allele> {
 	Y(Allele.Y, Allele.YREPLACE), K(Allele.K, Allele.KREPLACE), M(Allele.M, Allele.MREPLACE), S(Allele.S,
 			Allele.SREPLACE), W(Allele.W, Allele.WREPLACE), R(Allele.R, Allele.RREPLACE), B1(Allele.B,

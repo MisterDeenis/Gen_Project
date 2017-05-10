@@ -8,8 +8,8 @@ public enum BlondHairGenes implements Mappable<TargetSNPs, Allele[]> {
 	 SNP3(TargetSNPs.RS1805005,Allele.HOMOG),
 	 SNP4(TargetSNPs.RS885479, Allele.HOMOG);
 
-	TargetSNPs snp = null;
-	Allele[] alleles = null;
+	private TargetSNPs snp = null;
+	private Allele[] alleles = null;
 
 	private BlondHairGenes(TargetSNPs snp, Allele[] alleles) {
 		this.alleles = alleles;

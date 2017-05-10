@@ -13,8 +13,8 @@ public enum RedHairGenes implements Mappable<TargetSNPs, Allele[]> {
     SNP8(TargetSNPs.RS1805009, Allele.HOMOG), 
 	SNP9(TargetSNPs.RS2378249, Allele.HOMOA);
 
-	TargetSNPs snp = null;
-	Allele[] alleles = null;
+	private TargetSNPs snp = null;
+	private Allele[] alleles = null;
 
 	private RedHairGenes(TargetSNPs snp, Allele[] alleles) {
 		this.alleles = alleles;

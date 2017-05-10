@@ -88,6 +88,11 @@ public class Controller {
 
 	private EnvironmentThreeD envirnm = null;
 	private MusicPlayer player = null;
+
+	/**
+	 * Propriété dictant si nous sommes en mode ADN ou non. Si oui, on ouvre une
+	 * nouvelle fenêtre dans CtrlModeADN
+	 */
 	private BooleanProperty modeADNProperty = null;
 
 	@FXML
@@ -105,15 +110,6 @@ public class Controller {
 		pane3D.getChildren().add(envirnm.buildWorld(pane3D, (int) pane3D.getPrefWidth(), (int) pane3D.getPrefHeight()));
 	}
 
-	/**
-	 * Détermine les valeurs initiales des contrôles
-	 */
-	private void setControlsValue() {
-		choiceBoxYeux.setValue(EyeColor.BROWN);
-		choiceBoxSkin.setValue(SkinColor.MEDIUM);
-		choiceBoxCouleurCheveux.setValue(HairColor.BLOND);
-	}
-
 	public void setModeADN(boolean val) {
 		modeADNProperty.set(val);
 	}
@@ -124,6 +120,43 @@ public class Controller {
 
 	public BooleanProperty getModeADNProperty() {
 		return modeADNProperty;
+	}
+
+	public MusicPlayer getPlayer() {
+		return this.player;
+	}
+
+	public EnvironmentThreeD getEnvirnm() {
+		return envirnm;
+	}
+
+	/**
+	 * Détermine les valeurs initiales des contrôles
+	 */
+	private void setControlsValue() {
+		choiceBoxYeux.setValue(EyeColor.BROWN);
+		choiceBoxSkin.setValue(SkinColor.MEDIUM);
+		choiceBoxCouleurCheveux.setValue(HairColor.BLOND);
+	}
+
+	/**
+	 * Permet de "muter" la musique
+	 * 
+	 * @param event
+	 */
+	@FXML
+	private void mutePlayer(ActionEvent event) {
+		getPlayer().changeMute();
+	}
+
+	/**
+	 * Permet d'ouvrir le mode ADN
+	 * 
+	 * @param event
+	 */
+	@FXML
+	private void ouvrirModeADN(ActionEvent event) {
+		setModeADN(true);
 	}
 
 	/**
@@ -162,12 +195,12 @@ public class Controller {
 	/**
 	 * Ajoute les multiples écouteurs sur les contrôles
 	 */
-	public void ajouterEcouteurs() {
+	private void ajouterEcouteurs() {
 
 		choiceBoxYeux.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<EyeColor>() {
 			public void changed(ObservableValue<? extends EyeColor> ov, EyeColor old_val, EyeColor new_val) {
-				envirnm.getFace().getLEye().setColor(new_val);
-				envirnm.getFace().getREye().setColor(new_val);
+				envirnm.getFace().getEyeL().setColor(new_val);
+				envirnm.getFace().getEyeR().setColor(new_val);
 				envirnm.changementWorld();
 			}
 		});
@@ -181,8 +214,8 @@ public class Controller {
 
 		sliderEcartYeux.valueProperty().addListener(new ChangeListener<Number>() {
 			public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
-				envirnm.getFace().getLEye().setRotation((new_val.doubleValue()) * 3);
-				envirnm.getFace().getREye().setRotation((new_val.doubleValue()) * 3);
+				envirnm.getFace().getEyeL().setRotation((new_val.doubleValue()) * 3);
+				envirnm.getFace().getEyeR().setRotation((new_val.doubleValue()) * 3);
 				envirnm.getFace().setEyeDistance(new_val.floatValue());
 				envirnm.changementWorld();
 			}
@@ -190,17 +223,16 @@ public class Controller {
 
 		sliderHauteurOreilles.valueProperty().addListener(new ChangeListener<Number>() {
 			public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
-				envirnm.getFace().setPositionOreilles(new_val.floatValue(),
-						(float) sliderProfondeurOreilles.getValue());
+				envirnm.getFace().setHauteurOreilles(new_val.floatValue());
 				envirnm.changementWorld();
 			}
 		});
 
 		sliderProfondeurOreilles.valueProperty().addListener(new ChangeListener<Number>() {
 			public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
-				envirnm.getFace().setPositionOreilles((float) sliderHauteurOreilles.getValue(), new_val.floatValue());
-				envirnm.getFace().getLEar().setProfondeur(new_val.doubleValue());
-				envirnm.getFace().getREar().setProfondeur(new_val.doubleValue());
+				envirnm.getFace().setProfondeurOreilles(new_val.floatValue());
+				envirnm.getFace().getEarL().setProfondeur(new_val.doubleValue());
+				envirnm.getFace().getEarR().setProfondeur(new_val.doubleValue());
 				envirnm.changementWorld();
 			}
 		});
@@ -264,8 +296,8 @@ public class Controller {
 		choiceBoxCouleurCheveux.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<HairColor>() {
 			public void changed(ObservableValue<? extends HairColor> ov, HairColor old_val, HairColor new_val) {
 				envirnm.getFace().getHair().setCouleurCheveux(new_val);
-				envirnm.getFace().getRSourcils().setColor(new_val);
-				envirnm.getFace().getLSourcils().setColor(new_val);
+				envirnm.getFace().getSourcilsL().setColor(new_val);
+				envirnm.getFace().getSourcilsR().setColor(new_val);
 				envirnm.changementWorld();
 			}
 		});
@@ -313,33 +345,4 @@ public class Controller {
 		});
 
 	}
-
-	public MusicPlayer getPlayer() {
-		return this.player;
-	}
-
-	public EnvironmentThreeD getEnvirnm() {
-		return envirnm;
-	}
-
-	/**
-	 * Permet de "muter" la musique
-	 * 
-	 * @param event
-	 */
-	@FXML
-	private void mutePlayer(ActionEvent event) {
-		getPlayer().changeMute();
-	}
-
-	/**
-	 * Permet d'ouvrir le mode ADN
-	 * 
-	 * @param event
-	 */
-	@FXML
-	private void ouvrirModeADN(ActionEvent event) {
-		setModeADN(true);
-	}
-
 }

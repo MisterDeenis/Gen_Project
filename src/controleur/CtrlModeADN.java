@@ -30,6 +30,9 @@ import utils.FastaExporter;
 import vue.FichierChooser;
 import vue.MessageAlert;
 
+/**
+ * Classe contrôlant la vue du mode ADN
+ */
 public class CtrlModeADN {
 
 	@FXML
@@ -82,7 +85,8 @@ public class CtrlModeADN {
 
 	/**
 	 * Perrmet d'arrêter le thread
-	 * @param arreterThread 
+	 * 
+	 * @param arreterThread
 	 */
 	public void setArreterThread(Boolean arreterThread) {
 		this.arreterThread.set(arreterThread);
@@ -90,13 +94,27 @@ public class CtrlModeADN {
 	}
 
 	/**
+	 * Affiche une erreur et ouvre un DirectoryChooser
+	 *
+	 * @param message
+	 *            le message à afficher
+	 * @return le path du dossier sélectionné
+	 */
+	private File alertAndChooseFile(String message) {
+		new MessageAlert(message);
+		FichierChooser directoryChooser = new FichierChooser(pane.getScene().getWindow());
+		return directoryChooser.getFichierChoisi();
+
+	}
+
+	/**
 	 * Détermine si le thread roule
+	 * 
 	 * @return
 	 */
 	private boolean isReading() {
 		return (thread != null);
 	}
-
 
 	/**
 	 * Insère les labels au bon endroit et avec les bonnes données.
@@ -105,7 +123,7 @@ public class CtrlModeADN {
 		if (dNACreator != null) {
 			flowYeux.getChildren().clear();
 
-			createLabel(scrollYeux, face.getLEye().getCouleurYeux().getGenes());
+			createLabel(scrollYeux, face.getEyeL().getCouleurYeux().getGenes());
 			createLabel(scrollCheveux, face.getHair().getCouleurCheveux().getGenes());
 			createLabel(scrollPeau, face.getSkinColor().getGenes());
 		} else {
@@ -114,79 +132,7 @@ public class CtrlModeADN {
 			createLabel(scrollPeau);
 		}
 	}
-
-	/**
-	 * Crée un label avec les infos sur les SNP
-	 * 
-	 * @param pane
-	 *            dans quel pane mettre le label
-	 * @param map
-	 *            la map qui contient des infos de snp
-	 */
-	private void createLabel(ScrollPane pane, Map<TargetSNPs, Allele[]> map) {
-		Label label = new Label();
-
-		map.forEach((k, v) -> {
-
-			String targetSNP1 = new String(dNACreator.getDna().getChrPair(k.getChromosomeNbr())[0].getSnips()
-					.get("rs" + k.getId()).getSeq().substring(
-							dNACreator.getDna().getChrPair(k.getChromosomeNbr())[0].getSnips().get("rs" + k.getId())
-									.getVarPos(),
-							dNACreator.getDna().getChrPair(k.getChromosomeNbr())[0].getSnips().get("rs" + k.getId())
-									.getVarPos() + 1));
-
-
-			String targetSNP2 = new String(dNACreator.getDna().getChrPair(k.getChromosomeNbr())[1].getSnips()
-					.get("rs" + k.getId()).getSeq().substring(
-							dNACreator.getDna().getChrPair(k.getChromosomeNbr())[1].getSnips().get("rs" + k.getId())
-									.getVarPos(),
-							dNACreator.getDna().getChrPair(k.getChromosomeNbr())[1].getSnips().get("rs" + k.getId())
-									.getVarPos() + 1));
-
-			String seq11 = new String(
-					dNACreator.getDna().getChrPair(k.getChromosomeNbr())[0].getSnips().get("rs" + k.getId()).getSeq()
-							.substring(0, (dNACreator.getDna().getChrPair(k.getChromosomeNbr())[0].getSnips()
-									.get("rs" + k.getId()).getVarPos() - 1)));
-
-			String seq12 = new String(dNACreator.getDna().getChrPair(k.getChromosomeNbr())[0].getSnips()
-					.get("rs" + k.getId()).getSeq().substring((dNACreator.getDna().getChrPair(k.getChromosomeNbr())[0]
-							.getSnips().get("rs" + k.getId()).getVarPos() - 1)));
-
-
-			String seq21 = new String(
-					dNACreator.getDna().getChrPair(k.getChromosomeNbr())[1].getSnips().get("rs" + k.getId()).getSeq()
-							.substring(0, (dNACreator.getDna().getChrPair(k.getChromosomeNbr())[1].getSnips()
-									.get("rs" + k.getId()).getVarPos() - 1)));
-
-			String seq22 = new String(dNACreator.getDna().getChrPair(k.getChromosomeNbr())[1].getSnips()
-					.get("rs" + k.getId()).getSeq().substring((dNACreator.getDna().getChrPair(k.getChromosomeNbr())[1]
-							.getSnips().get("rs" + k.getId()).getVarPos() - 1)));
-
-			label.setText(label.getText() + "Chromosome: " + k.getChromosomeNbr() + "\n" + "Allèle: " + v[0] + "/"
-					+ v[1] + "\n" + "Gène:  " + k.getGene() + "\n" + "RS: " + "rs" + k.getId() + "\n" + "Séquence "
-					+ v[0] + " :" + seq11 + " [" + targetSNP1 + "] " + seq12 + "\nSéquence " + v[1] + " :" + seq21
-					+ " [" + targetSNP2 + "] " + seq22 + "\n" + "\n");
-
-			pane.setContent(label);
-
-		});
-
-	}
-
-	/**
-	 * Crée un label par défaut
-	 * 
-	 * @param pane
-	 *            la pane qui contient le label
-	 */
-	private void createLabel(ScrollPane pane) {
-
-		Label label = new Label();
-		label.setText("Erreur de lecture. Veuillez générer l'ADN avant qu'on l'affiche.");
-		pane.setContent(label);
-
-	}
-
+	
 	/**
 	 * Permet de choisir un fichier du répertoire afin d'enregistrer
 	 * l'exportation de l'ADN
@@ -194,7 +140,7 @@ public class CtrlModeADN {
 	 * @param event
 	 */
 	@FXML
-	public void ouvrirDirectoryChooser(ActionEvent event) {
+	private void ouvrirDirectoryChooser(ActionEvent event) {
 		FichierChooser directoryChooser = new FichierChooser(pane.getScene().getWindow());
 
 		if (directoryChooser.getFichierChoisi() != null) {
@@ -219,7 +165,7 @@ public class CtrlModeADN {
 	 * fichiers à lire sont introuvables
 	 */
 	@FXML
-	public void modeDNA() {
+	private void modeDNA() {
 		if (!isReading()) {
 			System.out.println("Je passe je vais lire!!");
 			this.thread = new ReaderThread();
@@ -228,33 +174,81 @@ public class CtrlModeADN {
 			System.out.println("Je lit déjà je lirai pas encore!");
 		}
 	}
+	
 
 	/**
-	 * Affiche une erreur et ouvre un DirectoryChooser
-	 *
-	 * @param message
-	 *            le message à afficher
-	 * @return le path du dossier sélectionné
+	 * Crée un label par défaut
+	 * 
+	 * @param pane
+	 *            la pane qui contient le label
 	 */
-	private File alertAndChooseFile(String message) {
-		new MessageAlert(message);
-		FichierChooser directoryChooser = new FichierChooser(pane.getScene().getWindow());
-		return directoryChooser.getFichierChoisi();
-
+	private void createLabel(ScrollPane pane) {
+		Label label = new Label();
+		label.setText("Erreur de lecture. Veuillez générer l'ADN avant qu'on l'affiche.");
+		pane.setContent(label);
 	}
 
-	public DNACreator getdNACreator() {
-		return this.dNACreator;
+	/**
+	 * Crée un label avec les infos sur les SNP
+	 * 
+	 * @param pane
+	 *            dans quel pane mettre le label
+	 * @param map
+	 *            la map qui contient des infos de snp
+	 */
+	private void createLabel(ScrollPane pane, Map<TargetSNPs, Allele[]> map) {
+		Label label = new Label();
+
+		map.forEach((k, v) -> {
+
+			String targetSNP1 = new String(dNACreator.getDna().getChrPair(k.getChromosomeNbr())[0].getSnips()
+					.get("rs" + k.getId()).getSeq().substring(
+							dNACreator.getDna().getChrPair(k.getChromosomeNbr())[0].getSnips().get("rs" + k.getId())
+									.getVarPos(),
+							dNACreator.getDna().getChrPair(k.getChromosomeNbr())[0].getSnips().get("rs" + k.getId())
+									.getVarPos() + 1));
+
+			String targetSNP2 = new String(dNACreator.getDna().getChrPair(k.getChromosomeNbr())[1].getSnips()
+					.get("rs" + k.getId()).getSeq().substring(
+							dNACreator.getDna().getChrPair(k.getChromosomeNbr())[1].getSnips().get("rs" + k.getId())
+									.getVarPos(),
+							dNACreator.getDna().getChrPair(k.getChromosomeNbr())[1].getSnips().get("rs" + k.getId())
+									.getVarPos() + 1));
+
+			String seq11 = new String(
+					dNACreator.getDna().getChrPair(k.getChromosomeNbr())[0].getSnips().get("rs" + k.getId()).getSeq()
+							.substring(0, (dNACreator.getDna().getChrPair(k.getChromosomeNbr())[0].getSnips()
+									.get("rs" + k.getId()).getVarPos() - 1)));
+
+			String seq12 = new String(dNACreator.getDna().getChrPair(k.getChromosomeNbr())[0].getSnips()
+					.get("rs" + k.getId()).getSeq().substring((dNACreator.getDna().getChrPair(k.getChromosomeNbr())[0]
+							.getSnips().get("rs" + k.getId()).getVarPos() - 1)));
+
+			String seq21 = new String(
+					dNACreator.getDna().getChrPair(k.getChromosomeNbr())[1].getSnips().get("rs" + k.getId()).getSeq()
+							.substring(0, (dNACreator.getDna().getChrPair(k.getChromosomeNbr())[1].getSnips()
+									.get("rs" + k.getId()).getVarPos() - 1)));
+
+			String seq22 = new String(dNACreator.getDna().getChrPair(k.getChromosomeNbr())[1].getSnips()
+					.get("rs" + k.getId()).getSeq().substring((dNACreator.getDna().getChrPair(k.getChromosomeNbr())[1]
+							.getSnips().get("rs" + k.getId()).getVarPos() - 1)));
+
+			label.setText(label.getText() + "Chromosome: " + k.getChromosomeNbr() + "\n" + "Allèle: " + v[0] + "/"
+					+ v[1] + "\n" + "Gène:  " + k.getGene() + "\n" + "RS: " + "rs" + k.getId() + "\n" + "Séquence "
+					+ v[0] + " :" + seq11 + " [" + targetSNP1 + "] " + seq12 + "\nSéquence " + v[1] + " :" + seq21
+					+ " [" + targetSNP2 + "] " + seq22 + "\n" + "\n");
+
+			pane.setContent(label);
+
+		});
+
 	}
 
 	/**
 	 * Permet de lire les fichiers dans un thread parallèle au thread principal
 	 * de l'application
-	 * 
-	 * @author Les géniesdu génome
-	 *
 	 */
-	class ReaderThread extends Service<Void> {
+	private class ReaderThread extends Service<Void> {
 
 		private Runnable createThreadMessage(String message) {
 			return new Runnable() {

@@ -74,7 +74,7 @@ public class VecteurUtilitaires {
 
 	/**
 	 * Méthode permettant de trouver le point milieu d'un groupe (utile pour
-	 * déplacer le cou) TODO tests la dessus svp
+	 * déplacer le cou)
 	 * 
 	 * @param pointsGroup
 	 *            - les points du groupe en question
@@ -95,7 +95,6 @@ public class VecteurUtilitaires {
 		return new Point3D(moyX, moyY, moyZ);
 	}
 
-	// TODO tests unitaires
 	/**
 	 * Effectue le produit scalaire entre 2 vecteurs
 	 * 
@@ -106,11 +105,9 @@ public class VecteurUtilitaires {
 	 * @return le produit scalaire des deux vecteurs
 	 */
 	public static double produitScalaire(Point3D v1, Point3D v2) {
-		return (v1.getX() * v2.getX()) + (v1.getY() + v2.getY())
-				+ (v1.getZ() + v2.getZ());
+		return (v1.getX() * v2.getX()) + (v1.getY() + v2.getY()) + (v1.getZ() + v2.getZ());
 	}
 
-	// TODO tests unitaires
 	/**
 	 * Permet de déterminer l'angle entre 2 vecteurs
 	 * 
@@ -121,11 +118,9 @@ public class VecteurUtilitaires {
 	 * @return l'orientation en degrés
 	 */
 	public static double findAngle(Point3D v1, Point3D v2) {
-		return Math.acos(produitScalaire(v1, v2)
-				/ (findNorme(v1) * findNorme(v2)));
+		return Math.acos(produitScalaire(v1, v2) / (findNorme(v1) * findNorme(v2)));
 	}
 
-	// TODO tests unitaires
 	/**
 	 * Détermine les angles d'un vecteur en 3D par rapport à la base orthonormée
 	 * (i,j,k)
@@ -142,7 +137,6 @@ public class VecteurUtilitaires {
 	}
 
 	public static Point3D soustractionVecteur(Point3D v1, Point3D v2) {
-		return new Point3D(v1.getX() - v2.getX(), v1.getY() - v2.getY(),
-				v1.getZ() - v2.getZ());
+		return new Point3D(v1.getX() - v2.getX(), v1.getY() - v2.getY(), v1.getZ() - v2.getZ());
 	}
 }

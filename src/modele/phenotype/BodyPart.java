@@ -2,15 +2,27 @@ package modele.phenotype;
 
 import java.util.ArrayList;
 
+/**
+ * Classe générale d'une partie du corps donnant un modèle à ses descendants sur
+ * leurs attributs et leurs méthodes
+ */
 public class BodyPart {
 
+	/**
+	 * Partie du corps incluse dans cette partie du corps (Les bosses du nez
+	 * dans le nez)
+	 */
 	private ArrayList<String> subParts = null;
+	/**
+	 * Parties du corps à ignorer si on bouge cette partie (pas bouger le nez
+	 * quand on bouge les yeux)
+	 */
 	private ArrayList<String> ignore = null;
 
 	public BodyPart(String... groups) {
 		this(null, groups);
 	}
-	
+
 	public BodyPart(BodyPart... groups) {
 		this(null, groups);
 	}

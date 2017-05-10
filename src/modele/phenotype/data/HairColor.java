@@ -20,9 +20,9 @@ public enum HairColor {
 									new Color(173.0 / 255, 79.0 / 255, 9.0 / 255, 1), "Roux",
 									Mappable.valuesAsMap(RedHairGenes::values));
 
-	Map<TargetSNPs, Allele[]> genes = null;
-	Color color = null;
-	String name = null;
+	private Map<TargetSNPs, Allele[]> genes = null;
+	private Color color = null;
+	private String name = null;
 
 	private HairColor(Color color, String name, Map<TargetSNPs, Allele[]> genes) {
 		this.color = color;

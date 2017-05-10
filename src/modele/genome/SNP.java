@@ -10,6 +10,9 @@ import modele.genome.data.Allele;
 import modele.genome.data.Wildcard;
 import utils.Mappable;
 
+/**
+ * Classe représentant un SNP (un nucléotide souffrant de polymorphisme)
+ */
 public class SNP {
 	private String rs = null;
 	private String seqModel = null;
@@ -40,6 +43,20 @@ public class SNP {
 		return allele;
 	}
 
+	public void setAllele(Allele a) {
+		this.allele = a;
+		applyAlleleOnSeq();
+	}
+
+	public int getVarPos() {
+		return this.varPos;
+	}
+	
+	@Override
+	public String toString() {
+		return this.getRS();
+	}
+	
 	/**
 	 * Trouve les caractères possible des allèles à partir de l'énum Allele
 	 *
@@ -57,15 +74,6 @@ public class SNP {
 		ls.add(new Character(' '));
 
 		return ls;
-	}
-
-	public void setAllele(Allele a) {
-		this.allele = a;
-		applyAlleleOnSeq();
-	}
-
-	public int getVarPos() {
-		return this.varPos;
 	}
 
 	/**
@@ -125,10 +133,4 @@ public class SNP {
 
 		return out;
 	}
-
-	@Override
-	public String toString() {
-		return this.getRS();
-	}
-
 }

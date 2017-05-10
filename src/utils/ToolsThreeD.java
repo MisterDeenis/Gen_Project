@@ -5,9 +5,9 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 
-
 /**
  * Group contenant des fonctions pouvant affecter un objet dans l'espace 3D
+ * (Donnée par ORACLE)
  */
 public class ToolsThreeD extends Group {
 	public enum RotateOrder {
@@ -54,6 +54,8 @@ public class ToolsThreeD extends Group {
 			break;
 		case ZYX:
 			getTransforms().addAll(t, p, rx, ry, rz, s, ip);
+			break;
+		default:
 			break;
 		}
 	}

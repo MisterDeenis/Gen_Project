@@ -9,8 +9,8 @@ public enum BlueEyesGenes implements Mappable<TargetSNPs, Allele[]>{
 	SNP3(TargetSNPs.RS16891982,Allele.HOMOG), 
 	SNP4(TargetSNPs.RS1426654, Allele.HOMOA);
 	
-	TargetSNPs snp = null;
-	Allele[] alleles = null;
+	private TargetSNPs snp = null;
+	private Allele[] alleles = null;
 
 	private BlueEyesGenes(TargetSNPs snp, Allele[] alleles) {
 		this.alleles = alleles;

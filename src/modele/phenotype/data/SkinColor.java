@@ -13,8 +13,8 @@ import utils.Mappable;
 public enum SkinColor {
 
 	LIGHT("Pâle", Color.BURLYWOOD, Mappable.valuesAsMap(LightSkinGenes::values)), MEDIUM("Medium", Color.PERU,
-			Mappable.valuesAsMap(MediumSkinGenes::values)), DARK("Foncée", new Color(102.0/255, 79.0/255, 60.0/255, 1),
-					Mappable.valuesAsMap(DarkSkinGenes::values));
+			Mappable.valuesAsMap(MediumSkinGenes::values)), DARK("Foncée",
+					new Color(102.0 / 255, 79.0 / 255, 60.0 / 255, 1), Mappable.valuesAsMap(DarkSkinGenes::values));
 
 	private Color color = null;
 	private String name = null;
@@ -29,7 +29,7 @@ public enum SkinColor {
 	public Color getColor() {
 		return this.color;
 	}
-	
+
 	public Map<TargetSNPs, Allele[]> getGenes() {
 		return this.genes;
 	}

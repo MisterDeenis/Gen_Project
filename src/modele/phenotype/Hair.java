@@ -4,9 +4,12 @@ import java.util.ArrayList;
 
 import modele.phenotype.data.HairColor;
 
+/**
+ * Classe représentant des cheveux
+ */
 public class Hair extends BodyPart {
 
-	public HairColor couleurCheveux;
+	private HairColor couleurCheveux;
 
 	public Hair(HairColor hc, String... groups) {
 		this(hc, null, groups);

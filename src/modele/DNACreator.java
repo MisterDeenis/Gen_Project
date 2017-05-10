@@ -27,10 +27,9 @@ public class DNACreator {
 	private DNA dna = null;
 	private Face face = null;
 	private DoubleProperty readingProgressProperty = null;
-	
+
 	public DNACreator(Face f, DoubleProperty progress, BooleanProperty booleanp)
 			throws ConstructionException, IOException, URISyntaxException {
-    
 		if (f != null) {
 			this.readingProgressProperty = progress;
 			this.dna = new DNA(chrSymByTargets(), progress, booleanp);
@@ -40,6 +39,15 @@ public class DNACreator {
 			throw new ConstructionException("VISAGE INEXISTANT");
 		}
 
+	}
+
+	/**
+	 * Met à jour l'ADN selon l'aspect actuel du visage
+	 */
+	public void updateDNA() {
+		setGenes(this.face.getEyeL().getCouleurYeux().getGenes());
+		setGenes(this.face.getSkinColor().getGenes());
+		setGenes(this.face.getHair().getCouleurCheveux().getGenes());
 	}
 
 	public DNA getDna() {
@@ -94,14 +102,4 @@ public class DNACreator {
 		});
 
 	}
-
-	/**
-	 * Met à jour l'ADN selon l'aspect actuel du visage
-	 */
-	public void updateDNA() {
-		setGenes(this.face.getLEye().getCouleurYeux().getGenes());
-		setGenes(this.face.getSkinColor().getGenes());
-		setGenes(this.face.getHair().getCouleurCheveux().getGenes());
-	}
-
 }

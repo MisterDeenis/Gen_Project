@@ -18,9 +18,11 @@ public class MapTools {
 	public static boolean findIfEquals(ObservableFloatArray p, ObservableFloatArray q) {
 		boolean out = true;
 		for (int i = 0; (i < p.size()) && (i < q.size()); i++) {
+
 			if (p.get(i) != q.get(i)) {
 				out = false;
 			}
+
 		}
 		return out;
 	}
@@ -39,10 +41,12 @@ public class MapTools {
 		List<Integer> out = new ArrayList<Integer>();
 		for (int i = 0; i < values.size() / 3; i++) {
 			for (int j = 0; j < targets.size() / 3; j++) {
+
 				if ((values.get(3 * i) == targets.get(3 * j)) && (values.get((3 * i) + 1) == targets.get((3 * j) + 1))
 						&& (values.get((3 * i) + 2) == targets.get((3 * j) + 2))) {
 					out.add(i);
 				}
+
 			}
 		}
 		return out;

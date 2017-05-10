@@ -1,7 +1,12 @@
 package modele.genome.data;
 
+/**
+ * Enum représentant les SNP qu'il faut chercher dans le fichier fasta (les SNP
+ * codant les variations génétiques que nous avons choisis d'implémenter dans
+ * notre programme)
+ */
 public enum TargetSNPs {
-	RS12913832("12913832", "HERC2", "15"), 
+	RS12913832("12913832", "HERC2", "15"),
 	RS1545397("1545397", "OCA2", "15"), 
 	RS1426654("1426654", "SLC24A5","15"), 
 	RS6119471("6119471", "ASIP", "20"), 

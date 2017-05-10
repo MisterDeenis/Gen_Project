@@ -25,6 +25,10 @@ public final class FastaSequenceReader {
 		sequences = createMap();
 	}
 
+	public Map<String, String> getSequences() {
+		return this.sequences;
+	}
+	
 	/**
 	 * Permet de lire les séquences ciblées dans un fichier au format FASTA
 	 * standard
@@ -115,9 +119,5 @@ public final class FastaSequenceReader {
 		}
 
 		return map;
-	}
-
-	public Map<String, String> getSequences() {
-		return this.sequences;
 	}
 }

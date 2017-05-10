@@ -35,12 +35,31 @@ public class TransformationPoints {
 	 * entre différents groupes lorsqu'il y a un changement sur ceux-ci.
 	 */
 	private Map<ObservableFloatArray, List<String>> pointsSupp = null;
-
+	/**
+	 * Une map avec comme clé les différents group et comme value les différents
+	 * index des points à ne pas bouger en se basant sur les groupREM. Utilisée
+	 * lorsque qu'on bouge les points d'un groupe pour éviter de déformer le
+	 * visage. (Les points du groupe à bouger)
+	 */
 	private Map<String, Set<Integer>> pointsDodge = null;
-
+	/**
+	 * Une map avec comme clé les différents group et comme value la liste des
+	 * groupes communs à ne pas bouger. Utilisée lorsqu'on déplace les groupes
+	 * pour éviter de déformer le visage. (Les points des groupes communs au
+	 * groupe à bouger)
+	 */
 	private Map<String, List<String>> groupsREM = null;
-
-	private Map<String, Map<String, Transform>> groupFactors = null;
+	/**
+	 * Une map avec comme clé les différents group et comme value une map, avec
+	 * comme clé les ancêtres (qui sont une étiquette des modifications à
+	 * effectuer comme rotationOreille ou hauteurOreille) et comme value l'objet
+	 * Transform de la transformation que l'on effectue sur notre group.
+	 * Utilisée pour stocker les différentes Transform sur un group et pouvoir
+	 * ensuite le remplacer par une autre Transform si on change sa valeur (on
+	 * change la hauteur de l'oreille, on va donc changer son objet Translation
+	 * pour changer sa hauteur).
+	 */
+	private Map<String, Map<String, Transform>> groupTransform = null;
 
 	public TransformationPoints() {
 		points3DIni = new HashMap<String, ObservableFloatArray>();
@@ -48,7 +67,7 @@ public class TransformationPoints {
 		pointsSupp = new HashMap<ObservableFloatArray, List<String>>();
 		pointsDodge = new HashMap<String, Set<Integer>>();
 		groupsREM = new HashMap<String, List<String>>();
-		groupFactors = new HashMap<String, Map<String, Transform>>();
+		groupTransform = new HashMap<String, Map<String, Transform>>();
 	}
 
 	public void addIni3DPoints(String group, ObservableFloatArray points) {
@@ -65,8 +84,7 @@ public class TransformationPoints {
 	}
 
 	/**
-	 * Permet d'appliquer une translation sur une des composantes du visage.
-	 * Update le point d'un groupe selon un facteur dans chaque dimension.
+	 * Permet d'appliquer une translation sur une partie du visage
 	 * 
 	 * @param part
 	 *            la partie du visage
@@ -74,10 +92,11 @@ public class TransformationPoints {
 	 *            les paramètres de la transformation (x, y ,z)
 	 */
 	public void applyTranslation(BodyPart part, String ancestor, Point3D transformation) {
+		System.out.println("TRANS");
 		for (String group : part.getSubParts()) {
 			ajoutGroupFactors(group, ancestor,
 					new Translate(transformation.getY(), transformation.getZ(), transformation.getX()));
-			updatePoints(group, part.getIgnore(), ancestor);
+			updatePoints(group, ancestor, part.getIgnore());
 		}
 	}
 
@@ -94,6 +113,7 @@ public class TransformationPoints {
 	 */
 	public void applyRotation(BodyPart part, String ancestor, Point3D pointCentre, char axe, double degres,
 			Point3D translation) {
+		System.out.println("ROT");
 		for (String group : part.getSubParts()) {
 			Rotate objet = null;
 			switch (axe) {
@@ -111,12 +131,13 @@ public class TransformationPoints {
 			ajoutGroupFactors(group, ancestor, objet);
 			ajoutGroupFactors(group, ancestor + "Translate",
 					new Translate(translation.getY(), translation.getZ(), translation.getX()));
-			updatePoints(group, part.getIgnore(), ancestor);
+			updatePoints(group, ancestor, part.getIgnore());
 		}
 	}
 
 	/**
-	 * Permet de grossir dans toutes les dimensions une partie du visage
+	 * Permet de grossir dans toutes les dimensions une partie du visage à
+	 * partir d'un point central
 	 * 
 	 * @param part
 	 *            la partie du visage à grossir
@@ -141,18 +162,30 @@ public class TransformationPoints {
 						vecteurDirecteur.getZ());
 
 				ajoutGroupFactors(group, ancestor, new Translate(delta.getY(), delta.getZ(), delta.getX()));
-				updateArrayWithFactors(points3DUpdater.get(group), group, i);
+				updateArrayWithFactors(group, i);
 				updatePointCommun(group, ancestor, findPointsGroupREM(part.getIgnore()));
 			}
 		}
 	}
 
+	/**
+	 * Permet d'étirer un groupe à partir d'un axe central
+	 * 
+	 * @param part
+	 *            - groupe à étirer
+	 * @param ancestor
+	 *            - la modification à effectuer
+	 * @param pointCentre
+	 *            - l'axe central
+	 * @param scale
+	 *            - l'étirement à effectuer
+	 */
 	public void applyStretch(BodyPart part, String ancestor, Point3D pointCentre, Point3D scale) {
 		for (String group : part.getSubParts()) {
 			Scale objet = new Scale(scale.getX(), scale.getY(), scale.getZ(), pointCentre.getX(), pointCentre.getY(),
 					pointCentre.getZ());
 			ajoutGroupFactors(group, ancestor, objet);
-			updatePoints(group, part.getIgnore(), ancestor);
+			updatePoints(group, ancestor, part.getIgnore());
 		}
 	}
 
@@ -205,17 +238,37 @@ public class TransformationPoints {
 
 	}
 
+	/**
+	 * Ajout de la transformation du groupe
+	 * 
+	 * @param groupADD
+	 *            - groupe à modifier
+	 * @param ancestors
+	 *            - la modification à effectuer
+	 * @param trans
+	 *            - la modification à effectuer
+	 */
 	private void ajoutGroupFactors(String groupADD, String ancestors, Transform trans) {
-		if (!groupFactors.containsKey(groupADD)) {
+		if (!groupTransform.containsKey(groupADD)) {
 			Map<String, Transform> map = new HashMap<String, Transform>();
 			map.put(ancestors, trans);
-			groupFactors.put(groupADD, map);
+			groupTransform.put(groupADD, map);
 		} else {
-			groupFactors.get(groupADD).put(ancestors, trans);
+			groupTransform.get(groupADD).put(ancestors, trans);
 		}
 	}
 
-	private void updatePoints(String groupADD, List<String> groupREM, String ancestor) {
+	/**
+	 * Update tous les points nécessaire à bouger
+	 * 
+	 * @param groupADD
+	 *            - groupe que l'on bouge
+	 * @param ancestor
+	 *            - le type de modification à apporter
+	 * @param groupREM
+	 *            - les groupes communs à ne pas bouger
+	 */
+	private void updatePoints(String groupADD, String ancestor, List<String> groupREM) {
 		ObservableFloatArray points = points3DUpdater.get(groupADD);
 		List<ObservableFloatArray> pointsGroupREM = findPointsGroupREM(groupREM);
 
@@ -226,20 +279,33 @@ public class TransformationPoints {
 		for (int i = 0; i < points.size() / 3; i++) {
 			if ((dodge != null) && (!dodge.isEmpty())) {
 				if (!dodge.contains(i)) {
-					updateArrayWithFactors(points, groupADD, i);
+					updateArrayWithFactors(groupADD, i);
 				}
 			} else {
-				updateArrayWithFactors(points, groupADD, i);
+				updateArrayWithFactors(groupADD, i);
 			}
 		}
 	}
 
-	private void updateArrayWithFactors(ObservableFloatArray pointsUpdater, String group, int index) {
-		ObservableFloatArray po = points3DIni.get(group);
-		Point3D trans = new Point3D(po.get(0 + (3 * index)), po.get(1 + (3 * index)), po.get(2 + (3 * index)));
-		for (Transform factors : groupFactors.get(group).values()) {
+	/**
+	 * Update le point à un certain index de notre group à l'aide de
+	 * groupTransform
+	 * 
+	 * @param group
+	 *            - groupe que l'on bouge
+	 * @param index
+	 *            - index de notre point
+	 */
+	private void updateArrayWithFactors(String group, int index) {
+		ObservableFloatArray pointsIni = points3DIni.get(group);
+		Point3D trans = new Point3D(pointsIni.get(0 + (3 * index)), pointsIni.get(1 + (3 * index)),
+				pointsIni.get(2 + (3 * index)));
+
+		for (Transform factors : groupTransform.get(group).values()) {
 			trans = factors.transform(trans);
 		}
+
+		ObservableFloatArray pointsUpdater = points3DUpdater.get(group);
 		pointsUpdater.set(2 + (3 * index), (float) (trans.getZ()));
 		pointsUpdater.set(0 + (3 * index), (float) (trans.getX()));
 		pointsUpdater.set(1 + (3 * index), (float) (trans.getY()));
@@ -253,21 +319,27 @@ public class TransformationPoints {
 	 *            - groupe que l'on bouge
 	 * @param dodge
 	 *            - points à ne pas bouger.
-	 * @param factors
+	 * @param ancestor
+	 *            - le type de modification à apporter
 	 */
 	private void updatePointCommun(String groupADD, String ancestor, List<ObservableFloatArray> dodge) {
 		List<ObservableFloatArray> pointsCommun = findKeyFromValueMap(groupADD, dodge);
 		for (ObservableFloatArray pointCommun : pointsCommun) {
+
 			List<String> groupsCommun = pointsSupp.get(pointCommun);
 			for (String g : groupsCommun) {
+
 				List<Integer> index = MapTools.findIndexOfValues(points3DIni.get(g), pointCommun);
 				if (!g.equals(groupADD)) {
 					for (Integer i : index) {
+
 						if (!ancestor.equals("")) {
 							Point3D updated = new Point3D(pointCommun.get(0), pointCommun.get(1), pointCommun.get(2));
-							for (Transform factors : groupFactors.get(groupADD).values()) {
+
+							for (Transform factors : groupTransform.get(groupADD).values()) {
 								updated = factors.transform(updated);
 							}
+
 							points3DUpdater.get(g).set((3 * i) + 2, (float) (updated.getZ()));
 							points3DUpdater.get(g).set((3 * i) + 0, (float) (updated.getX()));
 							points3DUpdater.get(g).set((3 * i) + 1, (float) (updated.getY()));
@@ -288,8 +360,10 @@ public class TransformationPoints {
 	private List<ObservableFloatArray> findPointsGroupREM(List<String> groupREM) {
 		List<ObservableFloatArray> pointsGroupREM = new ArrayList<ObservableFloatArray>();
 		if ((groupREM != null) && (!groupREM.isEmpty())) {
+
 			for (String rEM : groupREM) {
 				ObservableFloatArray g = points3DIni.get(rEM);
+
 				for (int i = 0; i < g.size() / 3; i++) {
 					ObservableFloatArray f = FXCollections.observableFloatArray();
 					f.addAll(g.get(3 * i), g.get((3 * i) + 1), g.get((3 * i) + 2));
@@ -297,6 +371,7 @@ public class TransformationPoints {
 				}
 			}
 		}
+
 		return pointsGroupREM;
 	}
 
@@ -314,20 +389,23 @@ public class TransformationPoints {
 		Set<Integer> dodge = new HashSet<Integer>();
 		ObservableFloatArray points = points3DIni.get(groupADD);
 		if ((pointsGroupREM != null) && (!pointsGroupREM.isEmpty())) {
+
 			for (int i = 0; i < points.size() / 3; i++) {
 				for (int j = 0; j < pointsGroupREM.size(); j++) {
 					for (int j2 = j + 1; j2 < pointsGroupREM.size() - 1; j2++) {
 						if (pointsGroupREM.get(j).size() == 3 && pointsGroupREM.get(j2).size() == 3) {
+
 							double distance = VecteurUtilitaires.findDistance(
 									new Point3D(pointsGroupREM.get(j).get(2), pointsGroupREM.get(j).get(0),
 											pointsGroupREM.get(j).get(1)),
 									new Point3D(pointsGroupREM.get(j2).get(2), pointsGroupREM.get(j2).get(0),
 											pointsGroupREM.get(j2).get(1)),
 									new Point3D(points.get((3 * i) + 2), points.get((3 * i)), points.get((3 * i) + 1)));
+
 							if (distance <= 0.001) {
 								dodge.add(i);
-
 							}
+
 						} else {
 							throw new ArithmeticException();
 						}
@@ -348,7 +426,9 @@ public class TransformationPoints {
 	private String findKeyFromValueMap(ObservableFloatArray points) {
 		String group = "";
 		boolean notFound = true;
+
 		for (String e : points3DIni.keySet()) {
+
 			if (notFound && (points.equals(points3DIni.get(e)))) {
 				group = e;
 				notFound = false;
@@ -362,19 +442,23 @@ public class TransformationPoints {
 	 * "group". Utilise la map pointsSupp.
 	 * 
 	 * @param group
+	 * @param pointsREM
 	 * @return une liste des différents points communs
 	 */
 	private List<ObservableFloatArray> findKeyFromValueMap(String group, List<ObservableFloatArray> pointsREM) {
 		List<ObservableFloatArray> out = new ArrayList<ObservableFloatArray>();
 		for (ObservableFloatArray e : pointsSupp.keySet()) {
+
 			if (pointsSupp.get(e).contains(group)) {
 				boolean notFound = true;
 				if ((pointsREM != null) && (!pointsREM.isEmpty())) {
+
 					for (int i = 0; i < pointsREM.size(); i++) {
 						if (MapTools.findIfEquals(e, pointsREM.get(i))) {
 							notFound = false;
 						}
 					}
+
 					if (notFound) {
 						out.add(e);
 					}

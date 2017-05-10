@@ -290,10 +290,10 @@ public class ObjImporter {
 				} else if (line.isEmpty() || line.startsWith("#")) {
 					// comments and empty lines are ignored
 				} else if (line.startsWith("vn ")) {
-					String[] split = line.substring(2).trim().split(" +");
-					float x = Float.parseFloat(split[0]);
-					float y = Float.parseFloat(split[1]);
-					float z = Float.parseFloat(split[2]);
+					// String[] split = line.substring(2).trim().split(" +");
+					// float x = Float.parseFloat(split[0]);
+					// float y = Float.parseFloat(split[1]);
+					// float z = Float.parseFloat(split[2]);
 					// normals.add(x);
 					// normals.add(y);
 					// normals.add(z);

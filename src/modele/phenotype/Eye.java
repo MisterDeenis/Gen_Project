@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 import modele.phenotype.data.EyeColor;
 
+/**
+ * Classe représentant un oeil
+ */
 public class Eye extends BodyPart {
 
 	private EyeColor color;

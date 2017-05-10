@@ -12,13 +12,17 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import modele.genome.data.TargetSNPs;
 
+/**
+ * Classe représentant l'ADN qui est l'information codant l'individu que vous
+ * êtes
+ */
 public class DNA {
 
 	private Set<String> chrSymbols = null;
 	private List<Chromosome> pair1 = null;
 	private List<Chromosome> pair2 = null;
 	private DoubleProperty readingProgressProperty = null;
-	
+
 	private BooleanProperty arreterThread;
 
 	public DNA(Set<String> chrSymbols, DoubleProperty progress, BooleanProperty booleanp)
@@ -38,47 +42,6 @@ public class DNA {
 
 	public Set<String> getChrSymbols() {
 		return chrSymbols;
-	}
-
-	/**
-	 * Retourne la liste des identifiants de SNPs selon le chromosome dans
-	 * lequel ils se situent
-	 *
-	 * @param chrNbr
-	 *            le numero du chromosome
-	 * @return la liste des identifiants des SNPs
-	 */
-	private List<String> targetIDByChr(String chrNbr) {
-		TargetSNPs[] tgt = TargetSNPs.values();
-		List<String> rsID = new LinkedList<String>();
-
-		for (TargetSNPs t : tgt) {
-			if (t.getChromosomeNbr().equals(chrNbr)) {
-				rsID.add(t.getId());
-			}
-		}
-
-		return rsID;
-	}
-
-	/**
-	 * Instancie les chromosomes selon la liste de symboles des chromosomes
-	 *
-	 * @throws ConstructionException
-	 * @throws IOException
-	 * @throws URISyntaxException
-	 */
-	private void createChr() throws ConstructionException, IOException,
-			URISyntaxException {
-		for (String sym : chrSymbols) {
-			if (arreterThread.get()) {
-				pair1.add(new Chromosome(sym, targetIDByChr(sym)));
-			pair2.add(new Chromosome(sym, targetIDByChr(sym)));
-			setReadingProgress(getReadingProgress() + (1.0 / chrSymbols.size()));
-			System.out.println("Reading progress: " + getReadingProgress());
-			}
-			
-		}
 	}
 
 	/**
@@ -112,6 +75,46 @@ public class DNA {
 
 	public void setReadingProgress(double val) {
 		this.readingProgressProperty.set(val);
+	}
+	
+	/**
+	 * Retourne la liste des identifiants de SNPs selon le chromosome dans
+	 * lequel ils se situent
+	 *
+	 * @param chrNbr
+	 *            le numero du chromosome
+	 * @return la liste des identifiants des SNPs
+	 */
+	private List<String> targetIDByChr(String chrNbr) {
+		TargetSNPs[] tgt = TargetSNPs.values();
+		List<String> rsID = new LinkedList<String>();
+
+		for (TargetSNPs t : tgt) {
+			if (t.getChromosomeNbr().equals(chrNbr)) {
+				rsID.add(t.getId());
+			}
+		}
+
+		return rsID;
+	}
+
+	/**
+	 * Instancie les chromosomes selon la liste de symboles des chromosomes
+	 *
+	 * @throws ConstructionException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	private void createChr() throws ConstructionException, IOException, URISyntaxException {
+		for (String sym : chrSymbols) {
+			if (arreterThread.get()) {
+				pair1.add(new Chromosome(sym, targetIDByChr(sym)));
+				pair2.add(new Chromosome(sym, targetIDByChr(sym)));
+				setReadingProgress(getReadingProgress() + (1.0 / chrSymbols.size()));
+				System.out.println("Reading progress: " + getReadingProgress());
+			}
+
+		}
 	}
 
 }
