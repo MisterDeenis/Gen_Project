@@ -92,7 +92,6 @@ public class TransformationPoints {
 	 *            les paramètres de la transformation (x, y ,z)
 	 */
 	public void applyTranslation(BodyPart part, String ancestor, Point3D transformation) {
-		System.out.println("TRANS");
 		for (String group : part.getSubParts()) {
 			ajoutGroupFactors(group, ancestor,
 					new Translate(transformation.getY(), transformation.getZ(), transformation.getX()));
@@ -113,7 +112,6 @@ public class TransformationPoints {
 	 */
 	public void applyRotation(BodyPart part, String ancestor, Point3D pointCentre, char axe, double degres,
 			Point3D translation) {
-		System.out.println("ROT");
 		for (String group : part.getSubParts()) {
 			Rotate objet = null;
 			switch (axe) {
